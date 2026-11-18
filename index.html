@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="application-name" content="Sideral Bridge Download">
+  <title>Scarica Sideral Bridge</title>
+  <style>
+    :root { color-scheme: dark; font: 100%/1.5 Inter, system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; min-height: 100svh; display: grid;
+           place-items: center; background: #0c1424; color: #f5f8fc; }
+    main { padding: 1rem; text-align: center; }
+    a { display: inline-block; border-radius: .6rem; padding: .9rem 1.4rem;
+        color: #0d2036; background: #a6d8ff; font-weight: 650; text-decoration: none; }
+    a:hover { background: #c4e5ff; }
+    a:focus-visible { outline: 3px solid white; outline-offset: 5px; }
+  </style>
+  <noscript><meta http-equiv="refresh" content="0;url=https://github.com/AdaptiveAgentStudio/updates/releases/download/v4.3.1/Adaptive_Agent_Studio_Setup_4.3.1.exe"></noscript>
+</head>
+<body>
+  <main><a id="installer" href="https://github.com/AdaptiveAgentStudio/updates/releases/download/v4.3.1/Adaptive_Agent_Studio_Setup_4.3.1.exe">Scarica Sideral Bridge per Windows (.exe)</a></main>
+  <script>
+    const link = document.getElementById("installer");
+    let clicked = false;
+    link.addEventListener("click", () => { clicked = true; });
+
+    async function startDownload() {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2500);
+      try {
+        const response = await fetch("https://api.github.com/repos/AdaptiveAgentStudio/updates/releases/latest",
+          { cache: "no-store", credentials: "omit", signal: controller.signal });
+        if (!response.ok) throw new Error("Release unavailable");
+        const release = await response.json();
+        const tag = release.tag_name;
+        const bot = "adaptiveagentstudio-releases[bot]";
+        if (/^v[0-9]+\.[0-9]+\.[0-9]+$/.test(tag) && !release.draft && !release.prerelease &&
+            release.author?.login === bot) {
+          const name = "Adaptive_Agent_Studio_Setup_" + tag.slice(1) + ".exe";
+          const url = "https://github.com/AdaptiveAgentStudio/updates/releases/download/" + tag + "/" + name;
+          if (release.assets.some(a => a.name === name && a.state === "uploaded" &&
+              a.browser_download_url === url && a.uploader?.login === bot)) link.href = url;
+        }
+      } catch {
+        // The published button already points at the last verified installer.
+      } finally {
+        clearTimeout(timeout);
+        if (!clicked) window.location.replace(link.href);
+      }
+    }
+    startDownload();
+  </script>
+</body>
+</html>
